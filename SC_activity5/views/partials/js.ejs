@@ -1,0 +1,71 @@
+<script>
+    const songList = <%- JSON.stringify(songs) %>;
+        const playerContainer = document.getElementById('player-container');
+        const audioPlayer = document.getElementById('audio-player');
+        const currentSongTitle = document.getElementById('current-song-title');
+        // const playerCover = document.getElementById('player-cover');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const totalDurationDisplay = document.getElementById('total-duration');
+        const volumeSlider = document.getElementById('volume-slider');
+        let currentSongIndex = 0;
+
+        function formatTime(seconds) {
+        const minutes = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function playSong(index) {
+        currentSongIndex = index;
+        loadSong(songList[currentSongIndex]);
+        playerContainer.style.display = 'flex';
+        audioPlayer.play();
+        }
+
+        function loadSong(song) {
+        currentSongTitle.innerText = `${song.title}`;
+        //   playerCover.src = '/images/image.png';
+        audioPlayer.src = `/${song.filePath}`;
+        playPauseBtn.innerText = 'Pause';
+        }
+
+        function prevSong() {
+        currentSongIndex = (currentSongIndex - 1 + songList.length) % songList.length;
+        loadSong(songList[currentSongIndex]);
+        audioPlayer.play();
+        }
+
+        function nextSong() {
+        currentSongIndex = (currentSongIndex + 1) % songList.length;
+        loadSong(songList[currentSongIndex]);
+        audioPlayer.play();
+        }
+
+        function togglePlayPause() {
+        if (audioPlayer.paused) {
+            audioPlayer.play();
+            playPauseBtn.innerText = 'Pause';
+        } else {
+            audioPlayer.pause();
+            playPauseBtn.innerText = 'Play';
+        }
+        }
+
+        volumeSlider.addEventListener('input', function() {
+        audioPlayer.volume = volumeSlider.value;
+        });
+
+        audioPlayer.addEventListener('timeupdate', function() {
+        currentTimeDisplay.textContent = formatTime(audioPlayer.currentTime);
+        });
+
+        audioPlayer.addEventListener('loadedmetadata', function() {
+        totalDurationDisplay.textContent = formatTime(audioPlayer.duration);
+        });
+
+        audioPlayer.addEventListener('ended', nextSong);
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

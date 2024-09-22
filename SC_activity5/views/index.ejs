@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Music Player</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="stylesheet" href="/css/style.css">
+  <%- include('partials/link') %>
+</head>
+<body>
+<div class="flex">
+    <div class="flex justify-content flex-col items-center p-4 rounded-sm" style="background-color: #708871;">
+        <h1 class="text-xl font-bold text-white text-center">Music Player</h1>
+        <a href="/albums" class="mt-3 p-1 bg-gray-200 w-full text-center text-gray-800 rounded-md no-underline hover:text-gray-800 hover:no-underline hover:bg-gray-300">Albums</a>
+    </div>
+  <div class="flex flex-wrap gap-5 p-2 justify-content items-center overflow-auto w-8/12">
+    <% songs.forEach((song, index) => { %>
+      <div class="shadow song-item" onclick="playSong('<%= index %>')">
+        <img src="/images/image.png" alt="<%= song.title %>">
+        <button class="text-gray-800"><%= song.title %></button>
+      </div>
+    <% }); %>
+  </div>
+
+    <%- include('partials/player') %> 
+    <%- include('partials/js') %> 
+</div>
+</body>
+</html>

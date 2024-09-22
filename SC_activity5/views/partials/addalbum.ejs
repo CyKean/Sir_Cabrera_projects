@@ -1,0 +1,21 @@
+<div class="modal fade" id="addAlbumModal" tabindex="-1" role="dialog" aria-labelledby="addAlbumModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="addAlbumModalLabel">Create New Album</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <form action="/albums/create" method="POST">
+            <div class="form-group">
+              <label for="albumName">Album Name</label>
+              <input type="text" class="form-control" id="albumName" name="name" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Album</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>

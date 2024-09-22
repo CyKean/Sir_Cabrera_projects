@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= album.name %> - Details</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <%- include('partials/link') %>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto p-4">
+        <div class="flex justify-left items-center">
+            <h1 class="text-3xl font-bold "><%= album.name %></h1>
+            <button type="button" class="text-gray-800 ml-2 rounded-md hover:bg-gray-200 p-1" onclick="openModal('editAlbumModal')"><i class='bx bxs-pencil' style='color:#708871;font-size: 25px;' ></i></button>
+        </div>
+        <a href="/albums" class="text-blue-600 hover:no-underline hover:bg-gray-200 rounded-full py-1 px-2"><i class='bx bx-arrow-back' style='color:#708871;font-size: 20px;'></i>
+        </a>
+
+        
+        <button type="button" class="mt-3 text-white px-2 py-1 rounded-md hover:bg-green-600 hover:text-white" onclick="openModal('addSongModal')">
+            <i class='bx bx-plus' style='color:#708871;font-size: 25px;' ></i>
+            <i class='bx bxs-music' style='color:#708871;font-size: 25px;' ></i>
+        </button>
+
+        <h2 class="text-2xl mt-4">Songs</h2>
+
+        <% if (album.songs.length === 0) { %>
+            <p>No songs in this album.</p>
+        <% } else { %>
+        <div class="flex flex-wrap gap-5 p-2 justify-content items-center overflow-auto w-full">
+            <% album.songs.forEach((song, index) => { %>
+                <div class="shadow song-item">
+                    <div onclick="playSong('<%= index %>')">
+                        <img src="/images/image.png" alt="<%= song.title %>">
+                        <button class="text-gray-800"><%= song.title %></button>
+                        
+                    </div>
+                    <button type="button" class="bg-red-500 text-black text-sm px-3 py-1 rounded-md hover:bg-red-600 hover:text-white" onclick="openModal('removeSongModal<%= song._id %>')">
+                        Remove
+                    </button>
+                </div>
+            
+                <div class="hidden fixed inset-0 flex items-center justify-center z-50" id="removeSongModal<%= song._id %>">
+                    <div class="bg-white rounded-md shadow-lg p-6">
+                        <h5 class="font-bold mb-4">Remove Song</h5>
+                        <p>Are you sure you want to remove the song "<%= song.title %>" from this album?</p>
+                        <div class="mt-4 flex justify-end">
+                            <button class="mr-2 bg-gray-300 text-gray-800 px-4 py-2 rounded-md" onclick="closeModal('removeSongModal<%= song._id %>')">Cancel</button>
+                            <form action="/albums/<%= album._id %>/songs/<%= song._id %>/delete" method="POST" class="inline">
+                                <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600"><i class='bx bx-trash' style='color:#708871'></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="fixed inset-0 bg-black opacity-50" style="z-index: -1;"></div>
+                </div>
+
+            <% }); %>
+        </div>
+        <% } %>
+    </div>
+
+    <!-- Player Section -->
+    <div id="player-container">
+        <div class="flex flex-col justify-content items-center h-full w-full" style="background-color: #708871;">
+            <div class="flex flex-col justify-content items-center p-5 h-auto w-auto">
+                <img src="/images/image.png" alt="Cover" class="w-30 h-30 rounded-md">
+                <h5 id="current-song-title" class="text-3xl mt-3 font-bold"></h5>
+            </div>
+            <div class="flex flex-col justify-content">
+                <audio id="audio-player" controls></audio>
+            </div>
+            <div id="player-controls" class="flex space-x-2">
+                <button id="prev-btn" onclick="prevSong()"><i class='bx bx-skip-previous'></i></button>
+                <button id="play-pause-btn" onclick="togglePlayPause()" style="display: none;">Pause</button>
+                <button id="next-btn" onclick="nextSong()"><i class='bx bx-skip-next'></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Album Modal -->
+    <div class="hidden fixed inset-0 flex items-center justify-center z-50" id="editAlbumModal">
+        <div class="bg-white rounded-md shadow-lg p-6">
+            <h5 class="font-bold mb-4">Edit Album Name</h5>
+            <form action="/album/edit/<%= album._id %>" method="POST">
+                <input type="text" name="name" value="<%= album.name %>" class="form-control mb-4 p-2 border border-gray-300 rounded" required>
+                <div class="flex justify-end">
+                    <button type="button" class="mr-2 bg-gray-300 text-gray-800 px-4 py-2 rounded-md" onclick="closeModal('editAlbumModal')">Cancel</button>
+                    <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">Save changes</button>
+                </div>
+            </form>
+        </div>
+        <div class="fixed inset-0 bg-black opacity-50" style="z-index: -1;"></div>
+    </div>
+
+    <!-- Add Song Modal -->
+    <div class="hidden fixed inset-0 flex items-center justify-center z-50" id="addSongModal">
+        <div class="bg-white rounded-md shadow-lg p-6">
+            <h5 class="font-bold mb-4">Add Song</h5>
+            <form action="/albums/<%= album._id %>/songs" method="POST">
+                <select name="songId" class="form-control mb-4 p-2 border border-gray-300 rounded">
+                    <% allSongs.forEach(song => { %>
+                        <option value="<%= song._id %>"><%= song.title %></option>
+                    <% }); %>
+                </select>
+                <div class="flex justify-end">
+                    <button type="button" class="mr-2 bg-gray-300 text-gray-800 px-4 py-2 rounded-md" onclick="closeModal('addSongModal')">Cancel</button>
+                    <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600">Add Song</button>
+                </div>
+            </form>
+        </div>
+        <div class="fixed inset-0 bg-black opacity-50" style="z-index: -1;"></div>
+    </div>
+
+    <!-- Song Already Exists Modal -->
+    <div class="hidden fixed inset-0 flex items-center justify-center z-50" id="songExistsModal">
+        <div class="bg-white rounded-md shadow-lg p-6">
+            <h5 class="font-bold mb-4">Song Already in Album</h5>
+            <p>The selected song is already in this album.</p>
+            <div class="flex justify-end">
+                <button type="button" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-md" onclick="closeModal('songExistsModal')">Close</button>
+            </div>
+        </div>
+        <div class="fixed inset-0 bg-black opacity-50" style="z-index: -1;"></div>
+    </div>
+
+    <script>
+        const songList = <%- JSON.stringify(album.songs) %>;
+        const playerContainer = document.getElementById('player-container');
+        const audioPlayer = document.getElementById('audio-player');
+        const currentSongTitle = document.getElementById('current-song-title');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        let currentSongIndex = 0;
+
+        function playSong(index) {
+            currentSongIndex = index;
+            loadSong(songList[currentSongIndex]);
+            playerContainer.style.display = 'flex';
+            audioPlayer.play();
+        }
+
+        function loadSong(song) {
+            currentSongTitle.innerText = song.title;
+            audioPlayer.src = `/${song.filePath}`;
+            playPauseBtn.innerText = 'Pause';
+        }
+
+        function prevSong() {
+            currentSongIndex = (currentSongIndex - 1 + songList.length) % songList.length;
+            loadSong(songList[currentSongIndex]);
+            audioPlayer.play();
+        }
+
+        function nextSong() {
+            currentSongIndex = (currentSongIndex + 1) % songList.length;
+            loadSong(songList[currentSongIndex]);
+            audioPlayer.play();
+        }
+
+        function togglePlayPause() {
+            if (audioPlayer.paused) {
+                audioPlayer.play();
+                playPauseBtn.innerText = 'Pause';
+            } else {
+                audioPlayer.pause();
+                playPauseBtn.innerText = 'Play';
+            }
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        <% if (typeof songExists !== 'undefined' && songExists) { %>
+            document.addEventListener('DOMContentLoaded', function () {
+                openModal('songExistsModal');
+            });
+        <% } %>
+    </script>
+</body>
+</html>
