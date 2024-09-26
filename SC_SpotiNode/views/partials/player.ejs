@@ -1,0 +1,41 @@
+<body>
+    <p class="text-white text-lg" id="currently-playing">Select a song to play</p>
+    <div class="flex flex-col items-center">
+        <img id="current-song-image" src="" alt="Current Song Image" class="w-32 h-32 my-4 hidden">
+        <p id="current-song-title" class="text-white text-xl"></p>
+        <p id="current-song-artist" class="text-white text-md"></p>
+    </div>
+                        
+    <div class="w-full flex flex-col items-center">
+        <div class="w-full flex items-center justify-center space-x-4 my-2">
+            <button id="shuffle-btn" onclick="toggleShuffle()">
+                <i id="shuffle-icon" class="fas fa-random"></i>
+            </button>
+            <button id="previous-btn" onclick="playPreviousSong()">
+                <i class="fa-solid fa-backward-step" id="previous-icon"></i>
+            </button>
+            <button id="play-pause-btn" onclick="togglePlayPause()">
+                <i class="fas fa-pause" id="play-pause-icon"></i>
+            </button>
+            <button id="next-btn" onclick="playNextSong()">
+                <i class="fa-solid fa-forward-step" id="next-icon"></i>
+            </button>
+            <button id="repeat-btn" onclick="toggleRepeat()">
+                <i id="repeat-icon" class="fas fa-redo"></i>
+            </button>
+    </div>
+    <audio id="audio-player" class="hidden">
+        <source id="audio-source" src="" type="audio/mpeg">
+    </audio>
+    <div class="w-full px-4">
+        <input id="progress-bar" type="range" value="0" max="100" class="w-full" min="0" step="0.1">
+    </div>
+    <div class="w-full flex justify-between px-4 text-white text-sm mt-1">
+        <span id="current-time">0:00</span>
+        <span id="total-duration">0:00</span>
+    </div>
+</div>
+    
+
+
+</body>

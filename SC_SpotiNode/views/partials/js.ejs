@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+        let currentSongId = null;
+        let currentIndex = null;
+        let isPlaying = false;
+        let repeatMode = 0;
+        let shuffle = false;
+        let songQueue = [];
+        
+        const songs = <%- JSON.stringify(getAllSongs) %>;
+        const audioPlayer = document.getElementById('audio-player');
+        const playPauseBtn = document.getElementById('play-pause-btn');
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeDisplay = document.getElementById('current-time');
+        const totalDurationDisplay = document.getElementById('total-duration');
+        const currentSongImage = document.getElementById('current-song-image');
+        const currentSongTitle = document.getElementById('current-song-title');
+        const currentSongArtist = document.getElementById('current-song-artist');
+        const currentlyPlayingText = document.getElementById('currently-playing');
+        const lyricsDisplay = document.getElementById('lyrics');
+        
+        audioPlayer.addEventListener('timeupdate', updateProgress);
+        audioPlayer.addEventListener('ended', playNextSong); 
+    
+        function addToQueue(filePath, songId, index) {
+            if (!songQueue.some(song => song.songId === songId)) {
+                songQueue.push({ songId, filePath, index });
+                alert(`Song added to the queue.`);
+            } else {
+                alert(`This song is already in the queue.`);
+            }
+        }
+    
+        function playSong(filePath, songId, index) {
+            currentIndex = index; 
+            currentSongId = songId; 
+    
+            const sourceElement = document.getElementById('audio-source');
+            sourceElement.src = `/music/${filePath}`;
+            audioPlayer.load();
+            audioPlayer.play();
+            isPlaying = true;
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>'; 
+    
+            const songData = songs[currentIndex];
+            updateSongUI(songId, songData.file_path); 
+        }
+    
+        function updateSongUI(songId, filePath) {
+            const songElement = document.getElementById('song-' + songId);
+            const songData = songs[currentIndex];
+        
+            currentSongImage.src = `/images/${songData.image || 'image.png'}`;
+            currentSongImage.classList.remove('hidden');
+            currentSongTitle.innerText = songData.title;
+            currentSongArtist.innerText = songData.artist;
+        
+            document.querySelectorAll('.playing-text').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.song-image').forEach(el => el.classList.remove('hidden'));
+                
+            songElement.querySelector('.playing-text').classList.remove('hidden');
+            songElement.querySelector('.song-image').classList.add('hidden');
+        
+            currentlyPlayingText.innerText = "Now Playing:";
+            updateLyrics(songData.lyrics);
+        }
+        
+        function updateLyrics(lyrics) {
+            if (lyrics) {
+                lyricsDisplay.innerText = lyrics;
+            } else {
+                lyricsDisplay.innerText = "No lyrics available.";
+            }
+        }
+        
+        function togglePlayPause() {
+            if (isPlaying) {
+                audioPlayer.pause();
+                playPauseBtn.innerHTML = '<i class="fa-solid fa-play"></i>';
+            } else {
+                audioPlayer.play();
+                playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+            }
+            isPlaying = !isPlaying;
+        }
+        
+        function updateProgress() {
+            const currentTime = audioPlayer.currentTime;
+            const duration = audioPlayer.duration;
+            progressBar.value = (currentTime / duration) * 100;
+            currentTimeDisplay.innerText = formatTime(currentTime);
+            totalDurationDisplay.innerText = formatTime(duration);
+        }
+        
+        function formatTime(time) {
+            const minutes = Math.floor(time / 60);
+            const seconds = Math.floor(time % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+        
+        function playNextSong() {
+            if (shuffle) {
+                currentIndex = Math.floor(Math.random() * songs.length);
+            } else {
+                currentIndex = (currentIndex + 1) % songs.length;
+            }
+    
+            if (songQueue.length > 0) {
+                const nextSong = songQueue.shift(); 
+                playSong(nextSong.filePath, nextSong.songId, nextSong.index);
+            } else {
+                if (repeatMode) {
+                    currentIndex = (currentIndex - 1 + songs.length) % songs.length; 
+                }
+                playSong(songs[currentIndex].file_path, songs[currentIndex].id, currentIndex);
+            }
+        }
+    
+        function playPreviousSong() {
+            currentIndex = (currentIndex - 1 + songs.length) % songs.length; 
+            playSong(songs[currentIndex].file_path, songs[currentIndex].id, currentIndex);
+        }
+    
+        function toggleRepeat() {
+            repeatMode = (repeatMode + 1) % 3;
+            const repeatIcon = document.getElementById('repeat-icon');
+    
+            if (repeatMode === 0) {
+                repeatIcon.className = "fas fa-redo"; 
+            } else if (repeatMode === 1) {
+                repeatIcon.className = "fas fa-redo-alt";
+            } else if (repeatMode === 2) {
+                repeatIcon.className = "fas fa-sync"; 
+            }
+        }
+    
+        function toggleShuffle() {
+            shuffle = !shuffle;
+            const shuffleIcon = document.getElementById('shuffle-icon');
+            
+            if (shuffle) {
+                shuffleIcon.className = "fas fa-random text-blue-500"; 
+            } else {
+                shuffleIcon.className = "fas fa-random"; 
+            }
+            playPauseBtn.innerHTML = '<i class="fas fa-pause"></i>';
+        }
+    
+    
+        audioPlayer.addEventListener('loadedmetadata', () => {
+            totalDurationDisplay.innerText = formatTime(audioPlayer.duration);
+        });
+    
+        audioPlayer.addEventListener('timeupdate', () => {
+            currentTimeDisplay.innerText = formatTime(audioPlayer.currentTime);
+            progressBar.value = (audioPlayer.currentTime / audioPlayer.duration) * 100; 
+        });
+    
+        progressBar.addEventListener('input', () => {
+            const newTime = (progressBar.value / 100) * audioPlayer.duration;
+            audioPlayer.currentTime = newTime; 
+        });
+    
+    </script>
+</body>
+</html>

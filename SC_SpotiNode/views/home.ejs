@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotiNode</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="overflow-hidden">
+
+    <div class="grid grid-cols-1">
+        <%- include('partials/header') %>
+        <div class="col-span-1">
+            <div class="grid grid-cols-12">
+                <div class="col-span-2">
+                    <%- include('partials/sidebar') %>
+                </div>
+                <div class="col-span-6">
+                    <div class="flex flex-col items-center bg-white h-screen overflow-auto">
+                        <div class="bg-white rounded-md shadow-md w-11/12 h-auto p-3 m-5">
+                            <h1 class="text-xl font-semibold text-gray-700 mb-3">Songs</h1>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-12" id="songs-list">
+                                <% getAllSongs.forEach((song, index) => { %>
+                                    <div id="song-<%= song.id %>" data-index="<%= index %>" class="col-span-12 grid grid-cols-1 sm:grid-cols-12 border border-green-200 rounded-md p-2 hover:bg-green-100 cursor-pointer" 
+                                        onclick="playSong('<%= song.file_path %>', '<%= song.id %>', <%= index %>)">
+                                        
+                                        <div class="col-span-2 sm:col-span-5 flex justify-center items-center text-center image-or-playing">
+                                            <img src="/images/image.png" alt="Song Image" class="w-6 h-6 song-image">
+                                            <span class="text-green-700 hidden playing-text">Playing</span>
+                                        </div>
+                                        
+                                        <div class="col-span-5 sm:col-span-4 flex justify-center items-center text-center">
+                                            <%= song.title %>
+                                        </div>
+                                        
+                                        <div class="col-span-5s sm:col-span-4 flex justify-center items-center text-center">
+                                            <%= song.artist %>
+                                        </div>
+                                        
+                                        <div class="col-span-1 sm:col-span-1 flex justify-center items-center text-center">
+                                            <button onclick="event.stopPropagation(); addToQueue('<%= song.file_path %>', '<%= song.id %>', <%= index %>)"><i class="fa-solid fa-compact-disc"></i></button>
+                                        </div>
+                                        
+                                    </div>
+                                <% }) %>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-4">
+                    <div class="bg-green-500 h-screen flex flex-col justify-center items-center" id="music-player">
+                        <%- include('partials/player') %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+    <%- include('partials/js') %>
+
+    <script>
+        const editSongModal = document.getElementById('editSongModal');
+        const closeEditSongModal = document.getElementById('closeEditSongModal');
+        const editSongModalBtn = document.getElementById('editSongModalBtn');
+
+        editSongModalBtn.onclick = function() {
+            editSongModal.classList.remove('hidden');
+        }
+
+        closeEditSongModal.onclick = function() {
+            editSongModal.classList.add('hidden');
+        }
+
+        window.onclick = function(event) {
+            if (event.target === editSongModal) {
+                editSongModal.classList.add('hidden');
+            }
+        }
+       
+    </script>
+</body>
+</html>

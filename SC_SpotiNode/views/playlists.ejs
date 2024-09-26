@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpotiNode</title>
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body class="overflow-hidden">
+
+    <div class="grid grid-cols-1">
+        <%- include('partials/header') %>
+        <div class="col-span-1">
+            <div class="grid grid-cols-12">
+                <div class="col-span-2">
+                    <%- include('partials/sidebar') %>
+                </div>
+                <div class="col-span-6">
+                    <div class="flex flex-col items-center bg-white h-screen overflow-auto">
+                        <div class="w-11/12 h-auto p-3 m-1">
+                            <div class="flex mb-3">
+                                <button id="createPlaylistBtn" class="bg-green-500 text-white py-2 px-4 rounded-lg ml-4 hover:bg-green-600">Create Playlist</button>
+                            </div>
+                            <div class="grid grid-cols-1 sm:grid-cols-12 gap-6" id="playlists">
+                                <% getPlaylist.forEach(playlist => {%>
+                                    <div class="border border-green-400 rounded-md flex flex-col items-center justify-center col-span-3">
+                                        <img src="/images/image.png" alt="" class="w-12 h-12 song-image m-2">
+                                        <a href="/playlist_details/<%= playlist.id %>" class="mb-3"><h3><%= playlist.name %></h3></a>
+                                        <a href="/playlists/<%= playlist.id %>/delete" class="text-sm mb-2 bg-red-400 p-2 rounded-md"><i class="fa-solid fa-trash-can"></i></a>
+                                    </div>
+                                <%  })%>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-span-4">
+                    <div class="bg-green-500 h-screen flex flex-col justify-center items-center" id="music-player">
+                        <%- include('partials/player') %>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="createPlaylistModal" class="modal hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="modal-content bg-white p-8 rounded-lg shadow-lg w-1/3">
+            <span class="close cursor-pointer text-red-500 text-2xl font-bold float-right" id="closeCreatePlaylist">&times;</span>
+            <form action="/createPlaylist" method="post">
+                <h2 class="text-xl font-semibold mb-4 text-gray-700">Create Playlist</h2>
+                <label for="name" class="block text-gray-600">Name</label>
+                <input type="text" name="name" class="w-full p-2 border border-gray-300 rounded-lg mt-1 mb-4">
+    
+                <label for="description" class="block text-gray-600">Description</label>
+                <input type="text" name="description" class="w-full p-2 border border-gray-300 rounded-lg mt-1 mb-4">
+    
+                <button type="submit" class="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600 w-full">Create</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const createPlaylistModal = document.getElementById('createPlaylistModal');
+        const createPlaylistBtn = document.getElementById('createPlaylistBtn');
+        const closeCreatePlaylist = document.getElementById('closeCreatePlaylist');
+    
+        createPlaylistBtn.onclick = function() {
+            createPlaylistModal.classList.remove('hidden');
+        }
+    
+        closeCreatePlaylist.onclick = function() {
+            createPlaylistModal.classList.add('hidden');
+        }
+    
+        window.onclick = function(event) {
+            if (event.target === createPlaylistModal) {
+                createPlaylistModal.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
